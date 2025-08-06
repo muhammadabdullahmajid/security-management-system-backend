@@ -1,6 +1,7 @@
-from client import Client
-from guard import Guard
-from dutyassignment import DutyAssignment
-from salaryrecord import SalaryRecord
-from inventoryrecord import InventoryRecord
+from models.client import Client
+from models.guard import Guard
+from models.dutyassignment import DutyAssignment
+from models.salaryrecord import SalaryRecord
+from models.inventoryrecord import InventoryRecord
+from models.auth import User
 

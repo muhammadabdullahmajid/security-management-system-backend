@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from utils.util import get_db
-from config.database import Session
+from sqlalchemy.orm import  Session 
 from datetime import datetime
 from utils.pydantic_model import SalaryRecordCreate,SalaryRecordResponse,SalaryRecordUpdate
 from models.dutyassignment import DutyAssignment
@@ -10,7 +10,7 @@ from typing import Optional
 
 search = APIRouter()
 
-@search.get("/search/guards")
+@search.get("/guards")
 async def search_guards_advanced(
     name: Optional[str] = None,
     contact: Optional[str] = None,

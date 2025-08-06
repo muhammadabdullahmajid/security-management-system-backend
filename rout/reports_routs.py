@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from utils.util import get_db
-from config.database import Session
+from sqlalchemy.orm import  Session 
 from datetime import datetime
 from models.guard import Guard, GuardStatus
 from models.salaryrecord import SalaryRecord

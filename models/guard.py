@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text, Enum
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, foreign
 from datetime import datetime
-from base import Base
+from models.base import Base
 import enum
 
 class GuardStatus(str, enum.Enum):
@@ -18,6 +18,9 @@ class Guard(Base):
     name = Column(String, nullable=False)
     contact_number = Column(String, unique=True, nullable=False, index=True)
     address = Column(Text)
+    uniform_cost = Column(Float, default=4000.0)
+    uniform_deducted_amount = Column(Float, default=0.0)
+    monthly_deduction = Column(Float, default=0.0)
     join_date = Column(DateTime, default=datetime.utcnow)
     status = Column(Enum(GuardStatus), default=GuardStatus.ACTIVE)
     current_salary = Column(Float, default=0.0)
@@ -25,6 +28,6 @@ class Guard(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    duty_assignments = relationship("DutyAssignment", back_populates="guard")
-    salary_records = relationship("SalaryRecord", back_populates="guard")
-    inventory_items = relationship("InventoryRecord", back_populates="guard")
+    duty_assignments = relationship("DutyAssignment", back_populates="guard", primaryjoin="foreign(DutyAssignment.guard_contact_number) == Guard.contact_number")
+    salary_records = relationship("SalaryRecord", back_populates="guard", primaryjoin="foreign(SalaryRecord.guard_contact_number) == Guard.contact_number")
+    inventory_items = relationship("InventoryRecord", back_populates="guard", primaryjoin="foreign(InventoryRecord.guard_contact_number) == Guard.contact_number")

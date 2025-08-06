@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from utils.util import get_db
-from config.database import Session
+from sqlalchemy.orm import  Session 
 from datetime import datetime
 from utils.pydantic_model import InventoryStatus, InventoryRecordCreate,InventoryRecordResponse, InventoryRecordUpdate
 from models.inventoryrecord import InventoryRecord,InventoryStatus
@@ -12,7 +12,7 @@ inventory_record=APIRouter()
 @inventory_record.post("/", response_model=InventoryRecordResponse)
 async def create_inventory_record(inventory: InventoryRecordCreate, db: Session = Depends(get_db)):
     # Check if guard exists
-    guard = db.query(Guard).filter(Guard.id == inventory.guard_id).first()
+    guard = db.query(Guard).filter(Guard.contact_number == inventory.guard_contact_number).first()
     if not guard:
         raise HTTPException(status_code=404, detail="Guard not found")
     
@@ -26,15 +26,15 @@ async def create_inventory_record(inventory: InventoryRecordCreate, db: Session 
 async def get_inventory_records(
     skip: int = 0,
     limit: int = 100,
-    guard_id: Optional[int] = None,
+    guard_contact_number: Optional[int] = None,
     item_type: Optional[str] = None,
     status: Optional[InventoryStatus] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(InventoryRecord)
     
-    if guard_id:
-        query = query.filter(InventoryRecord.guard_id == guard_id)
+    if guard_contact_number:
+        query = query.filter(InventoryRecord.guard_contact_number == guard_contact_number)
     if item_type:
         query = query.filter(InventoryRecord.item_type == item_type)
     if status:

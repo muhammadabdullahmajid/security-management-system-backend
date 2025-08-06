@@ -1,19 +1,18 @@
-from sqlalchemy import Column, Integer, Float, Boolean, DateTime, ForeignKey, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, Float, Boolean, DateTime, ForeignKey, Text, String
+from sqlalchemy.orm import relationship, foreign
 from datetime import datetime
-from base import Base
+from models.base import Base
 
 
 class SalaryRecord(Base):
     __tablename__ = "salary_records"
     
     id = Column(Integer, primary_key=True, index=True)
-    guard_id = Column(Integer, ForeignKey("guards.id"), nullable=False)
+    guard_contact_number = Column(String, ForeignKey("guards.contact_number"), nullable=False)
     month = Column(Integer, nullable=False)  # 1-12
     year = Column(Integer, nullable=False)
-    base_salary = Column(Float, nullable=False)
     deductions = Column(Float, default=0.0)
-    uniform_deduction = Column(Float, default=500.0)
+    uniform_deduction = Column(Float, default=0.0)
     bonus = Column(Float, default=0.0)
     final_salary = Column(Float, nullable=False)
     is_paid = Column(Boolean, default=False)
@@ -23,4 +22,4 @@ class SalaryRecord(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    guard = relationship("Guard", back_populates="salary_records")
+    guard = relationship("Guard", back_populates="salary_records", primaryjoin="Guard.contact_number == foreign(SalaryRecord.guard_contact_number)")
