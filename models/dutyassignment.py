@@ -5,9 +5,9 @@ from models.base import Base
 import enum
 
 class DutyStatus(str, enum.Enum):
-    ON_DUTY = "on_duty"
-    OFF_DUTY = "off_duty"
-    AVAILABLE = "available"
+    ON_DUTY = "ON_DUTY"
+    OFF_DUTY = "OFF_DUTY"
+    AVAILABLE = "AVAILABLE"
 
 class DutyAssignment(Base):
     __tablename__ = "duty_assignments"

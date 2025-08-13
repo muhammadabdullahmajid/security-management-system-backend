@@ -12,9 +12,13 @@ class GuardCreate(BaseModel):
     name: str
     contact_number: str
     address: Optional[str] = None
+    cnic: Optional[str] = None
     current_salary: Optional[float] = 0.0
-    uniform_cost: Optional[str] = None
+    uniform_cost: Optional[float] = None
     monthly_deduction: Optional[float] = 0.0
+    image_url: str
+    cnic_front_url: Optional[str] = None
+    cnic_back_url: Optional[str] = None
 
     
 
@@ -22,17 +26,25 @@ class GuardUpdate(BaseModel):
     name: Optional[str] = None
     contact_number: Optional[str] = None
     address: Optional[str] = None
-    status: Optional[GuardStatus] = None
+    cnic: Optional[str] = None
     current_salary: Optional[float] = None
+    status: Optional[GuardStatus] = None
+    image_url: Optional[str] = None
+    cnic_front_url: Optional[str] = None
+    cnic_back_url: Optional[str] = None
 
 class GuardResponse(BaseModel):
     id: int
     name: str
     contact_number: str
     address: Optional[str]
+    cnic: Optional[str] = None
     join_date: datetime
     status: GuardStatus
     current_salary: float
+    image_url: Optional[str]
+    cnic_front_url: Optional[str]
+    cnic_back_url: Optional[str]
     created_at: datetime
     updated_at: datetime
 

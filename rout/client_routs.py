@@ -3,6 +3,7 @@ from typing import List, Optional
 from utils.util import get_db
 from utils.pydantic_model import ClientCreate, ClientUpdate, ClientResponse, GuardAssignmentInfo, ClientGuardResponse
 from sqlalchemy.orm import  Session 
+from sqlalchemy import or_
 from models.client import Client
 from datetime import datetime
 from models.dutyassignment import DutyAssignment
@@ -36,7 +37,13 @@ async def get_clients(
         query = db.query(Client)
         
         if search:
-            query = query.filter(Client.name.ilike(f"%{search}%"))
+            query = query.filter(
+                or_(
+                    Client.name.ilike(f"%{search}%"),
+                    Client.contact_number.ilike(f"%{search}%")
+                )
+            )
+
         
         clients = query.offset(skip).limit(limit).all()
         return clients

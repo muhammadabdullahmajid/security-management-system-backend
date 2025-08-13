@@ -6,6 +6,7 @@ from utils.pydantic_model import DutyAssignmentCreate,DutyAssignmentResponse,Dut
 from models.guard import Guard
 from models.client import Client
 from typing import List, Optional
+from sqlalchemy.orm import joinedload
 from models.dutyassignment import DutyAssignment
 
 dutyassignment= APIRouter()
@@ -16,11 +17,11 @@ async def create_duty_assignment(assignment: DutyAssignmentCreate, db: Session =
         guard = db.query(Guard).filter(Guard.contact_number == assignment.guard_contact_number).first()
         if not guard:
             raise HTTPException(status_code=404, detail="Guard not found")
-
+        print("Guard in assignment",guard)
         client = db.query(Client).filter(Client.contact_number == assignment.client_contact_number).first()
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
-
+        print("client in assignment",client)
         # End any existing active assignments for this guard
         existing_assignments = db.query(DutyAssignment).filter(
             DutyAssignment.guard_contact_number == assignment.guard_contact_number,
@@ -174,4 +175,59 @@ async def delete_duty_assignment(assignment_id: int, db: Session = Depends(get_d
         return None  # 204 No Content
     except Exception as e:
         print(f"Error deleting duty assignment: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@dutyassignment.get("/client-guard-assignment/{client_contact_number}")
+def get_client_guard_assignments(
+    client_contact_number: str = None,
+    db: Session = Depends(get_db)
+):
+    try:
+        query = db.query(DutyAssignment).filter(DutyAssignment.is_active == True)
+
+        query = query.options(
+            joinedload(DutyAssignment.client),
+            joinedload(DutyAssignment.guard)
+        )
+
+        if client_contact_number is not None:
+            query = query.filter(DutyAssignment.client_contact_number == client_contact_number)
+
+        assignments = query.all()
+        client_map = {}
+
+        for assignment in assignments:
+            client = assignment.client
+            guard = assignment.guard
+            if not client or not guard:
+                continue
+
+            client_key = client.contact_number
+            if client_key not in client_map:
+                client_map[client_key] = {
+                    "client_id": client.id,
+                    "client_name": client.name,
+                    "client_contact": client.contact_number,
+                    "company_name": client.company_name,
+                    "guards": []
+                }
+
+            client_map[client_key]["guards"].append({
+                "guard_id": guard.id,
+                "name": guard.name,
+                "contact_number": guard.contact_number,
+                "duty_status": assignment.duty_status.name.upper() if assignment.duty_status else None,
+                "shift_type": assignment.shift_type,
+                "start_date": assignment.start_date.isoformat() if assignment.start_date else None
+            })
+
+        result = []
+        for client_data in client_map.values():
+            client_data["total_guards"] = len(client_data["guards"])
+            result.append(client_data)
+
+        return result
+
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
